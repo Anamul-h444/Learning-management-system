@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Account Activation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+      h1 {
+        color: #333;
+      }
+      h2 {
+        color: #007bff;
+      }
+      p {
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Account Activation</h1>
+      <p>Hi <%= user.name %>,</p>
+      <p>
+        Thank you for signing up with our service. To activate your account,
+        please use the following code:
+      </p>
+      <h2><%= activationCode %></h2>
+      <p>
+        You can enter this code on our website to complete the activation
+        process.
+      </p>
+      <p>
+        If you didn't request this activation code, please ignore this email.
+        Your account will remain inactive.
+      </p>
+      <p>Thank you for choosing our service!</p>
+    </div>
+  </body>
+</html>
