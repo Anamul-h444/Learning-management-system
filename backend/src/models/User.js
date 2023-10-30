@@ -1,15 +1,23 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
+// Regular expression for email validation
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+// Define the User Schema
 const userSchema = mongoose.Schema(
   {
-    name: { type: String, required: [true, "Please enter your name"] },
+    name: {
+      type: String,
+      required: [true, "Please enter your name"],
+    },
     email: {
       type: String,
       required: [true, "Please enter your email"],
       validate: {
+        // Validate email using a regular expression
         validator: function (value) {
           return emailRegex.test(value);
         },
@@ -20,21 +28,31 @@ const userSchema = mongoose.Schema(
     password: {
       type: String,
       required: [true, "Please enter your password"],
-      minlength: [6, "Please must be at least 6 characters"],
-      select: false,
+      minlength: [6, "Password must be at least 6 characters"],
+      select: false, // Hide the password by default
     },
-    avater: {
+    avatar: {
       public_id: String,
       url: String,
     },
-    role: { type: String, default: "user" },
-    isVerified: { type: Boolean, default: false },
-    courses: [{ courseId: String }],
+    role: {
+      type: String,
+      default: "user",
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    courses: [
+      {
+        courseId: String,
+      },
+    ],
   },
-  { timestamps: true }
+  { timestamps: true } // Automatically add created_at and updated_at timestamps
 );
 
-//hash password before save
+// Hash the password before saving it to the database
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
@@ -43,9 +61,24 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-//compare password
-userSchema.methods.comparePasswrod = async function (enteredPassword) {
+// Define a method to compare passwords
+userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
+// Sign an access token for the user
+userSchema.methods.signAccessToken = function () {
+  return jwt.sign({ _id: this._id }, process.env.ACCESS_TOKEN_SECRET || "", {
+    expiresIn: "5m",
+  });
+};
+
+// Sign a refresh token for the user
+userSchema.methods.signRefreshToken = function () {
+  return jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET || "", {
+    expiresIn: "7d",
+  });
+};
+
+// Export the User model
 module.exports = mongoose.model("User", userSchema);

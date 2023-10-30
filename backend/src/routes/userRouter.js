@@ -1,11 +1,19 @@
 const router = require("express").Router();
+const { authenticate, isAdmin } = require("../middleware/auth");
 
-const { registration, activeUser } = require("../controller/userController");
+const {
+  registration,
+  activeUser,
+  login,
+  logOutUser,
+  updateAccessToken,
+} = require("../controller/userController");
 //User CRUD
 router.post("/registration", registration);
 router.post("/activate", activeUser);
-// router.post("/login", loginUser);
-// router.post("/login", login);
+router.post("/login", login);
+router.get("/logout", authenticate, logOutUser);
+router.get("/refreshtoken", authenticate, updateAccessToken);
 // router.post("/update/:id", [userAuth], updateUser);
 // router.delete("/delete/:id", [userAuth, adminAuth], deleteUser);
 // router.get("/get/details", [userAuth], getUserDetails);
