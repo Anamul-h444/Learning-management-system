@@ -7,8 +7,8 @@ const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRE || 1200;
 
 // Options for cookies
 const accessTokenOptions = {
-  expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 1000),
-  maxAge: accessTokenExpire * 60 * 60 * 1000,
+  expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 60 * 1000),
+  maxAge: accessTokenExpire * 60 * 60 * 60 * 1000,
   httpOnly: true,
   sameSite: "lax",
   secure: process.env.NODE_ENV === "production",

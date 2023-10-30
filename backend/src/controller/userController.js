@@ -4,6 +4,7 @@ const sendEmail = require("../mailer/sendEmail");
 const path = require("path");
 const ejs = require("ejs");
 require("dotenv").config();
+const cloudinary = require("cloudinary").v2;
 const {
   accessTokenOptions,
   refreshTokenOptions,
@@ -128,11 +129,143 @@ module.exports.updateAccessToken = (req, res) => {
       { expiresIn: "7d" }
     );
 
+    req.user = user;
+
     //set cookie
     res.cookie("access_token", accessToken, accessTokenOptions);
     res.cookie("refresh_token", refreshToken, refreshTokenOptions);
 
     res.status(200).json({ success: true, accessToken });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// getUserInfo
+module.exports.getUserInfo = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const user = await User.findById(userId); // Pass the userId directly
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    res
+      .status(200)
+      .json({ success: true, user, message: "User retrieved successfully" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Social auth
+module.exports.socialAuth = async (req, res) => {
+  try {
+    const { email, name, avatar } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      const newUser = await User.create({ email, name, avatar });
+      sendToken(newUser, 200, res);
+    } else {
+      sendToken(user, 200, res);
+    }
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Update user info
+module.exports.updateUserInfo = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const userId = req.user?._id;
+
+    // Find the user by ID
+    let user = await User.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Update only the 'name' field
+    user.name = name;
+
+    // Save the updated user
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user,
+      message: "User information updated successfully",
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// update password
+module.exports.updatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    const userId = req.user?._id;
+
+    // Find the user by ID
+    let user = await User.findById(userId).select("+password");
+
+    //Checking if user is registration by social auth
+    if (user?.password === undefined) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    const isPasswordMatch = await user?.comparePassword(oldPassword);
+    if (!isPasswordMatch) {
+      return res.status(400).json({ message: "Invalid old password" });
+    }
+    user.password = newPassword;
+
+    await user.save();
+    res
+      .status(201)
+      .json({ success: true, user, message: "Password update successful" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Update profile picture
+module.exports.updateprofilePic = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const userId = req.user?._id;
+    let user = await User.findById(userId);
+
+    if (avatar && user) {
+      if (user?.avatar?.public_id) {
+        // Delete the previous avatar from Cloudinary
+        await cloudinary.uploader.destroy(user?.avatar?.public_id);
+      }
+
+      // Upload the new avatar to Cloudinary
+      const result = await cloudinary.uploader.upload(avatar, {
+        folder: "avatars",
+        width: 150,
+      });
+
+      user.avatar = {
+        public_id: result.public_id,
+        url: result.secure_url,
+      };
+    }
+
+    await user.save();
+    res
+      .status(201)
+      .json({ success: true, user, message: "Avatar update successful" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

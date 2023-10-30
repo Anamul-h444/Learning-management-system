@@ -3,6 +3,7 @@ const Redis = require("ioredis");
 const app = require("./app");
 const dotenv = require("dotenv");
 dotenv.config();
+const cloudinary = require("cloudinary").v2;
 
 /* Create Server */
 const port = process.env.PORT;
@@ -30,5 +31,11 @@ const redisClient = () => {
   }
   throw new Error("Radis connection failed");
 };
-
 new Redis(redisClient());
+
+//cloudinary config
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
