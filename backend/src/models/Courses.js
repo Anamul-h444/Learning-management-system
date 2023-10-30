@@ -13,8 +13,8 @@ const linkSchema = mongoose.Schema({
 
 const commentSchema = mongoose.Schema({
   user: Object,
-  comment: String,
-  commentReplies: [Object],
+  question: String,
+  questionReplies: [Object],
 });
 
 const courseDataSchema = mongoose.Schema({
@@ -26,7 +26,7 @@ const courseDataSchema = mongoose.Schema({
   videoPlayer: String,
   links: [linkSchema],
   suggestion: String,
-  question: [commentSchema],
+  questions: [commentSchema],
 });
 
 const courseSchema = mongoose.Schema(
