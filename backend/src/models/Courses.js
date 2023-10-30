@@ -1,45 +1,33 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const reviewSchema = mongoose.Schema(
-  {
-    user: Object,
-    rating: { type: Number, default: 0 },
-  },
-  { timestamps: true }
-);
+const reviewSchema = mongoose.Schema({
+  user: Object,
+  rating: { type: Number, default: 0 },
+});
 
-const linkSchema = mongoose.Schema(
-  {
-    title: String,
-    url: String,
-  },
-  { timestamps: true }
-);
+const linkSchema = mongoose.Schema({
+  title: String,
+  url: String,
+});
 
-const commentSchema = mongoose.Schema(
-  {
-    user: Object,
-    comment: String,
-    commentReplies: [Object],
-  },
-  { timestamps: true }
-);
+const commentSchema = mongoose.Schema({
+  user: Object,
+  comment: String,
+  commentReplies: [Object],
+});
 
-const courseDataSchema = mongoose.Schema(
-  {
-    videoUrl: String,
-    title: String,
-    videoSection: String,
-    description: String,
-    videoLength: Number,
-    videoPlayer: String,
-    links: [linkSchema],
-    suggestion: String,
-    question: [commentSchema],
-  },
-  { timestamps: true }
-);
+const courseDataSchema = mongoose.Schema({
+  videoUrl: String,
+  title: String,
+  videoSection: String,
+  description: String,
+  videoLength: Number,
+  videoPlayer: String,
+  links: [linkSchema],
+  suggestion: String,
+  question: [commentSchema],
+});
 
 const courseSchema = mongoose.Schema(
   {

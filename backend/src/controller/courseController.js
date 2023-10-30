@@ -52,3 +52,18 @@ module.exports.updateCourse = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+//get single course without purchase
+
+module.exports.getSingleCourse = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const course = await Courses.findById(courseId).select(
+      "-courseData.videoUrl -courseData.suggestion -courseData.question -courseData.links"
+    );
+
+    res.status(200).json({ success: true, course });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
