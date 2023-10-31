@@ -1,6 +1,8 @@
-const { default: mongoose } = require("mongoose");
 const Courses = require("../models/Courses");
 const cloudinary = require("cloudinary").v2;
+const ejs = require("ejs");
+const path = require("path");
+const sendEmail = require("../mailer/sendEmail");
 
 module.exports.uploadCourse = async (req, res) => {
   try {
@@ -124,14 +126,17 @@ module.exports.getCourseByUser = async (req, res) => {
 module.exports.addQuestion = async (req, res) => {
   try {
     const { question, courseId, contentId } = req.body;
+
+    //find cousrse by course id
     const course = await Courses.findById(courseId);
 
-    if (!mongoose.Types.ObjectId.isValid(contentId)) {
-      return res.status(400).json({ message: "Invalid content ID" }); // Changed the error message
-    }
+    // if (!mongoose.Types.ObjectId.isValid(quiestionsId)) {
+    //   return res.status(400).json({ message: "Invalid content ID" });
+    // }
 
+    //find course content by course data id (course data == course content)
     const courseContent = course?.courseData?.find(
-      (item) => item._id.toString() === contentId // Corrected the comparison
+      (item) => item._id.toString() === contentId
     );
 
     if (!courseContent) {
@@ -149,7 +154,70 @@ module.exports.addQuestion = async (req, res) => {
     courseContent.questions.push(newQuestion);
 
     // Save the updated course
+    //await course.save();
+    res.status(200).json({ success: true, course });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+//add answer
+module.exports.addAnswer = async (req, res) => {
+  try {
+    const { answer, courseId, contentId, questionId } = req.body;
+    //find course by course id
+    const course = await Courses.findById(courseId);
+
+    //find content by course data by contentid from course > courseContent
+    const courseContent = course?.courseData?.find(
+      (item) => item._id.toString() === contentId
+    );
+
+    if (!courseContent) {
+      return res.status(400).json({ message: "Invalid content id" });
+    }
+
+    //find question by question id from courseContent > questons
+    const question = courseContent?.questions.find(
+      (question) => question._id.toString() === questionId
+    );
+    if (!question) {
+      return res.status(400).json({ message: "Invalid content id" });
+    }
+    //create a new answer object
+    const newAnswer = {
+      user: req.user,
+      answer,
+    };
+
+    //add this answer in question replay
+    question.questionReplies.push(newAnswer);
+
     await course.save();
+
+    if (req.user?._id === question.user._id) {
+      //create a notification
+    } else {
+      const data = {
+        name: question.user.name,
+        title: courseContent.title,
+        answer: answer,
+      };
+      try {
+        // Get the path to the email template file
+        const templatePath = path.join(
+          __dirname,
+          "../mailer/question-reply.ejs"
+        );
+
+        // Render the email template with ejs
+        const html = await ejs.renderFile(templatePath, data);
+        await sendEmail(question.user.email, "Question Reply", html);
+      } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+      }
+    }
+
     res.status(200).json({ success: true, course });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

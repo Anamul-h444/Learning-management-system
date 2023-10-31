@@ -8,6 +8,7 @@ const {
   getAllCourses,
   getCourseByUser,
   addQuestion,
+  addAnswer,
 } = require("../controller/courseController");
 
 //User CRUD
@@ -17,5 +18,6 @@ router.get("/getSingleCourse/:id", getSingleCourse);
 router.get("/getAllCourses", getAllCourses);
 router.get("/getCourseContent/:id", authenticate, getCourseByUser);
 router.post("/addQuestion", authenticate, addQuestion);
+router.post("/addAnswer", authenticate, addAnswer);
 
 module.exports = router;
