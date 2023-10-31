@@ -9,6 +9,8 @@ const {
   getCourseByUser,
   addQuestion,
   addAnswer,
+  addReview,
+  addReplyToReview,
 } = require("../controller/courseController");
 
 //User CRUD
@@ -19,5 +21,7 @@ router.get("/getAllCourses", getAllCourses);
 router.get("/getCourseContent/:id", authenticate, getCourseByUser);
 router.post("/addQuestion", authenticate, addQuestion);
 router.post("/addAnswer", authenticate, addAnswer);
+router.post("/addReview/:id", authenticate, addReview);
+router.post("/addReplyToReview", authenticate, isAdmin, addReplyToReview);
 
 module.exports = router;

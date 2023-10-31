@@ -223,3 +223,80 @@ module.exports.addAnswer = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+//add review
+module.exports.addReview = async (req, res) => {
+  try {
+    const userCourseList = req.user?.courses;
+    const courseId = req.params.id;
+    const courseExists = userCourseList?.some(
+      (course) => course._id.toString() === courseId
+    );
+    if (!courseExists) {
+      return res
+        .status(400)
+        .json({ message: "You are not eligible to access to this course" });
+    }
+    const course = await Courses.findById(courseId);
+    const { review, rating } = req.body;
+    const reviewData = {
+      user: req.user,
+      comment: review,
+      rating,
+    };
+    course.reviews.push(reviewData);
+
+    //calculate average rating
+    let avg = 0;
+    course?.reviews.forEach((review) => (avg += review.rating));
+
+    //set course avg rating
+    if (course) {
+      course.rating = avg / course.reviews.length;
+    }
+    // 2 reviews 4* and 5* => 0+4+5 = 9 => 9/2 = 4.5
+
+    await course.save();
+
+    const notification = {
+      title: "New Review Received",
+      message: `${req.user.name} has given a review in ${course.name}`,
+    };
+    //creeate notification
+
+    res.status(200).json({ success: true, course });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+//add reply to review
+module.exports.addReplyToReview = async (req, res) => {
+  try {
+    const { comment, couresId, reviewId } = req.body;
+
+    const course = await Courses.findById(couresId);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    const review = course?.reviews.find(
+      (review) => review._id.toString() === reviewId
+    );
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    const replyData = {
+      user: req.user,
+      comment,
+    };
+
+    review.commentReplies.push(replyData);
+    await course?.save();
+
+    res.status(200).json({ success: true, course });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

@@ -3,7 +3,9 @@ require("dotenv").config();
 
 const reviewSchema = mongoose.Schema({
   user: Object,
-  rating: { type: Number, default: 0 },
+  rating: Number,
+  comment: String,
+  commentReplies: [],
 });
 
 const linkSchema = mongoose.Schema({
