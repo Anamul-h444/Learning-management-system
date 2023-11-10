@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container {
+  @apply mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20;
+}
+
+:root {
+  --forground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --forground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+/* chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+body {
+  color: rgb(var(--forground-rgb));
+  @apply font-Poppins;
+}
+
+.hero_animation {
+  background-image: linear-gradient(
+    147.92deg,
+    hsla(239, 76%, 53%, 0.456) 10.41%,
+    hsla(0, 0%, 100%, 0) 89.25%
+  );
+  animation: changeBackgroundColor 8s infinite alternate;
+}
+
+@keyframes changeBackgroundColor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  16.67% {
+    opacity: 0.9;
+  }
+  33.33% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  66.66% {
+    opacity: 0.5;
+  }
+  83.33% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px); /* Fix the percentage here */
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.shake-animation {
+  animation: shake 0.5s ease;
+}
+
+.titleStyle {
+  @apply text-[25px] text-secondary dark:text-white font-[500] text-center py-2;
+}
+.labelStyle {
+  @apply text-[16px] text-secondary dark:text-white;
+}
+.inputStyle {
+  @apply w-full text-secondary dark:text-white bg-transparent border rounded h-[40px] px-2 outline-none mt-[10px] placeholder:text-[14px];
+}
+.containedButton {
+  @apply flex items-center justify-center py-3 px-6 rounded cursor-pointer bg-accent dark:bg-[#2190ff] min-h-[45px] text-[16px] font-semibold text-white;
+}

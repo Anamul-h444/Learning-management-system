@@ -3,6 +3,7 @@ const cloudinary = require("cloudinary").v2;
 const ejs = require("ejs");
 const path = require("path");
 const sendEmail = require("../mailer/sendEmail");
+const Notification = require("../models/Notification");
 
 module.exports.uploadCourse = async (req, res) => {
   try {
@@ -153,8 +154,15 @@ module.exports.addQuestion = async (req, res) => {
     // Add this question to our course content
     courseContent.questions.push(newQuestion);
 
+    //send notification to the admin about this question
+    await Notification.create({
+      user: req.user?._id,
+      title: "New Question",
+      message: `You have a new question from ${courseContent?.title}`,
+    });
+
     // Save the updated course
-    //await course.save();
+    await course.save();
     res.status(200).json({ success: true, course });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -197,6 +205,11 @@ module.exports.addAnswer = async (req, res) => {
 
     if (req.user?._id === question.user._id) {
       //create a notification
+      await Notification.create({
+        user: req.user?._id,
+        title: "New question reply received",
+        message: `You have a question reply from ${courseContent.title}`,
+      });
     } else {
       const data = {
         name: question.user.name,
@@ -298,5 +311,38 @@ module.exports.addReplyToReview = async (req, res) => {
     res.status(200).json({ success: true, course });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+//get all courses --only admin allowed
+module.exports.getAllCoursesForAdmin = async (req, res) => {
+  try {
+    const courses = await Courses.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, courses });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+//delete course --only admin is allowed
+module.exports.deleteCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const course = await Courses.findById(id);
+    if (!course) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Course not found" });
+    }
+
+    await course.deleteOne({ _id: id });
+
+    // Send success response
+    res
+      .status(200)
+      .json({ success: true, message: "Course delete successful" });
+  } catch (error) {
+    // Handle the error and send an error response
+    res.status(400).json({ success: false, message: error.message });
   }
 };

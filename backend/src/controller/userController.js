@@ -270,3 +270,50 @@ module.exports.updateprofilePic = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+//get all users --only admin is allowed
+module.exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, users });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+//update user role
+module.exports.updateUserRole = async (req, res) => {
+  try {
+    const { id, role } = req.body;
+    const user = await User.findByIdAndUpdate(id, { role }, { new: true });
+    if (!user) {
+      res.status(400).json({ message: "User not found" });
+    }
+    res
+      .status(200)
+      .json({ success: true, user, message: "User role update successful" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+//delete user --only admin is allowed
+module.exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    await user.deleteOne({ _id: id });
+
+    // Send success response
+    res.status(200).json({ success: true, message: "User delete successful" });
+  } catch (error) {
+    // Handle the error and send an error response
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

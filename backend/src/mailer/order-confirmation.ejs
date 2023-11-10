@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* Add your CSS styles here */
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f4f4f4;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .header {
+        text-align: center;
+      }
+      .order-details {
+        margin-top: 20px;
+        background-color: #fff;
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Order Confirmation</h1>
+      </div>
+      <div class="order-details">
+        <p>Your order details:</p>
+        <p><strong>Order ID:</strong> <%= orderData._id %></p>
+        <p><strong>Course Name:</strong> <%= orderData.name %></p>
+        <p><strong>Price:</strong> $<%= orderData.price %></p>
+        <p><strong>Date:</strong> <%= orderData.date %></p>
+      </div>
+    </div>
+  </body>
+</html>

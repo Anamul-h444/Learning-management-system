@@ -11,6 +11,8 @@ const {
   addAnswer,
   addReview,
   addReplyToReview,
+  getAllCoursesForAdmin,
+  deleteCourse,
 } = require("../controller/courseController");
 
 //User CRUD
@@ -23,5 +25,12 @@ router.post("/addQuestion", authenticate, addQuestion);
 router.post("/addAnswer", authenticate, addAnswer);
 router.post("/addReview/:id", authenticate, addReview);
 router.post("/addReplyToReview", authenticate, isAdmin, addReplyToReview);
+router.delete("/delete/:id", authenticate, isAdmin, deleteCourse);
+router.get(
+  "/getAllCoursesForAdmin",
+  authenticate,
+  isAdmin,
+  getAllCoursesForAdmin
+);
 
 module.exports = router;

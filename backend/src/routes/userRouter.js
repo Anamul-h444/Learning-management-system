@@ -12,6 +12,9 @@ const {
   updateUserInfo,
   updatePassword,
   updateprofilePic,
+  getAllUsers,
+  updateUserRole,
+  deleteUser,
 } = require("../controller/userController");
 
 //User CRUD
@@ -25,5 +28,8 @@ router.post("/social-auth", socialAuth);
 router.post("/update/userinfo", authenticate, updateUserInfo);
 router.post("/update/password", authenticate, updatePassword);
 router.post("/update/avatar", authenticate, updateprofilePic);
+router.get("/getAllUsers", authenticate, isAdmin, getAllUsers);
+router.post("/update/role", authenticate, isAdmin, updateUserRole);
+router.delete("/delete/:id", authenticate, isAdmin, deleteUser);
 
 module.exports = router;

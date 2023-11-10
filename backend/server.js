@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Redis = require("ioredis");
+// const Redis = require("ioredis");
 const app = require("./app");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -24,14 +24,14 @@ mongoose
   });
 
 //Connection with radis
-const redisClient = () => {
-  if (process.env.REDIS_URL) {
-    console.log("Redis connected");
-    return process.env.REDIS_URL;
-  }
-  throw new Error("Radis connection failed");
-};
-new Redis(redisClient());
+// const redisClient = () => {
+//   if (process.env.REDIS_URL) {
+//     console.log("Redis connected");
+//     return process.env.REDIS_URL;
+//   }
+//   throw new Error("Radis connection failed");
+// };
+// new Redis(redisClient());
 
 //cloudinary config
 cloudinary.config({
