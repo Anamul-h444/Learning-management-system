@@ -1,10 +1,12 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useVerificationModal from "@/app/hooks/useVerificationModal";
 import Modal from "@/app/utils/Modal";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
+import { useSelector } from "react-redux";
+import { useActivationMutation } from "../../../../redux/features/auth/authApi";
 
 const Verification = () => {
   const loginModal = useLoginModal();
@@ -20,8 +22,35 @@ const Verification = () => {
     3: "",
   });
 
+  const token = useSelector((state) => state.auth.token);
+  const [activation, { isSuccess, error, data }] = useActivationMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      const message = data?.message || "Account Activated successful";
+      toast.success(message);
+      verificationModal.onClose();
+      loginModal.onOpen();
+    }
+    if (error) {
+      if ("data" in error) {
+        const errorData = error;
+        toast.error(errorData.data.message);
+        setInvalidError(true);
+      }
+    }
+  }, [isSuccess, error]);
+
   const verificationHandler = async () => {
-    setInvalidError(true);
+    const verificationNumber = Object.values(verifyNumber).join("");
+    if (verificationNumber.length !== 4) {
+      setInvalidError(true);
+      return;
+    }
+    await activation({
+      activationToken: token,
+      activationCode: verificationNumber,
+    });
   };
 
   const handleInputChange = (index, value) => {

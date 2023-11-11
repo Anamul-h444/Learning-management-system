@@ -17,7 +17,8 @@ module.exports.registration = async (req, res) => {
     let user = {};
     // Check email
     user = await User.findOne({ email: email });
-    if (user) return res.status(400).send("User already registered");
+    if (user)
+      return res.status(400).json({ message: "User already registered" });
     user = { name, email, password };
 
     const activationToken = createActivationToken(user);
@@ -60,13 +61,13 @@ module.exports.activeUser = async (req, res) => {
     const check = jwt.verify(activationToken, process.env.JWT_SECRET_KEY);
 
     if (check.activationCode !== activationCode) {
-      return res.status(400).send("Invalid activation code");
+      return res.status(400).json({ message: "Invalid activation code" });
     }
     const { name, email, password } = check.user;
 
     const existUser = await User.findOne({ email });
     if (existUser) {
-      return res.status(400).send("Email already exist");
+      return res.status(400).json({ message: "Email already exist" });
     }
     const user = await User.create({ name, email, password });
     res

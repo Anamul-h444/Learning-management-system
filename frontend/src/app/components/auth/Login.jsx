@@ -41,8 +41,9 @@ const Login = () => {
   const formik = useFormik({
     initialValues: inittialValues,
     validationSchema: validationSchema,
-    onSubmit: async ({ email, password }) => {
+    onSubmit: async ({ email, password }, onSubmitProps) => {
       console.log(email, password);
+      onSubmitProps.resetForm();
     },
   });
 

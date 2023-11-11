@@ -1,6 +1,7 @@
 import { Poppins, Josefin_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import Providers from "./Providers";
 
 const josefin = Josefin_Sans({
   subsets: ["latin"],
@@ -22,8 +23,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${poppins.variable} ${josefin.variable} debug-screens !bg-bgLight dark:bg-bgDark bg-no-repeat duration-300`}
       >
-        {children}
-        <Toaster position="top-right" reverseOrder={false} />
+        <Providers>
+          {children}
+          <Toaster position="top-right" reverseOrder={false} />
+        </Providers>
       </body>
     </html>
   );

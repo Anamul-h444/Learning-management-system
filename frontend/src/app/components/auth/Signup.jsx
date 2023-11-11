@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -12,6 +12,8 @@ import useLoginModal from "../../hooks/useLoginModal";
 import useRegisterModal from "../../hooks/useRegisterModal";
 import useVerificationModal from "@/app/hooks/useVerificationModal";
 import Modal from "../../utils/Modal";
+import { useRegisterMutation } from "../../../../redux/features/auth/authApi";
+import toast from "react-hot-toast";
 
 const validationSchema = Yup.object({
   name: Yup.string().required("Name is required!"),
@@ -51,13 +53,30 @@ const Signup = () => {
     loginModal.onOpen();
   }, [registerModal, loginModal]);
 
+  const [register, { data, error, isSuccess }] = useRegisterMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      const message = data?.message || "Registration successful";
+      toast.success(message);
+      verificationModal.onOpen();
+      registerModal.onClose();
+    }
+    if (error) {
+      if ("data" in error) {
+        const errorData = error;
+        toast.error(errorData.data.message);
+      }
+    }
+  }, [isSuccess, error]);
+
   const formik = useFormik({
     initialValues: inittialValues,
     validationSchema: validationSchema,
-    onSubmit: async ({ name, email, password }) => {
-      console.log(name, email, password);
-      verificationModal.onOpen();
-      registerModal.onClose();
+    onSubmit: async ({ name, email, password }, onSubmitProps) => {
+      const data = { name, email, password };
+      await register(data);
+      onSubmitProps.resetForm();
     },
   });
 
